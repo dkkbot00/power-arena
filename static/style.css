@@ -35,10 +35,5 @@ cursor:pointer;
 box-shadow:0 0 10px #c300ff;
 }
 
-.X{
-color:#00f7ff;
-}
-
-.O{
-color:#ff00c8;
-}
+.X{ color:#00f7ff; }
+.O{ color:#ff00c8; }
