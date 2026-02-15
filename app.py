@@ -1,44 +1,40 @@
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO, emit, join_room
-import threading
 import time
+import threading
 import random
 
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet")
 
-online_users = 0
+online = 0
 rooms = {}
 
 @app.route("/")
 def home():
     return render_template("index.html")
 
-# ---------------- ONLINE COUNT ---------------- #
-
 @socketio.on("connect")
-def on_connect():
-    global online_users
-    online_users += 1
-    emit("online_count", online_users, broadcast=True)
+def connect():
+    global online
+    online += 1
+    emit("online_count", online, broadcast=True)
 
 @socketio.on("disconnect")
-def on_disconnect():
-    global online_users
-    online_users -= 1
-    emit("online_count", online_users, broadcast=True)
-
-# ---------------- MATCHMAKING ---------------- #
+def disconnect():
+    global online
+    online -= 1
+    emit("online_count", online, broadcast=True)
 
 @socketio.on("join_game")
 def join_game():
     sid = request.sid
     emit("waiting")
 
-    def start_game():
+    def start_ai():
         time.sleep(5)
 
-        room = f"ai_{sid}"
+        room = f"room_{sid}"
         join_room(room)
 
         rooms[room] = {
@@ -48,13 +44,10 @@ def join_game():
 
         socketio.emit("game_start", {
             "room": room,
-            "symbol": "X",
-            "ai": True
+            "symbol": "X"
         }, room=sid)
 
-    threading.Thread(target=start_game).start()
-
-# ---------------- MOVE ---------------- #
+    threading.Thread(target=start_ai).start()
 
 @socketio.on("make_move")
 def make_move(data):
@@ -62,10 +55,10 @@ def make_move(data):
     index = data["index"]
     symbol = data["symbol"]
 
-    if room not in rooms:
+    game = rooms.get(room)
+    if not game:
         return
 
-    game = rooms[room]
     board = game["board"]
 
     if board[index] == "" and game["turn"] == symbol:
@@ -77,14 +70,16 @@ def make_move(data):
             "turn": "O"
         }, room=room)
 
-        # AI MOVE
+        # AI move after 1.5 sec
         time.sleep(1.5)
         ai_move(room)
 
 def ai_move(room):
-    game = rooms[room]
-    board = game["board"]
+    game = rooms.get(room)
+    if not game:
+        return
 
+    board = game["board"]
     empty = [i for i in range(9) if board[i] == ""]
     if not empty:
         return
@@ -97,8 +92,6 @@ def ai_move(room):
         "board": board,
         "turn": "X"
     }, room=room)
-
-# ---------------- RUN ---------------- #
 
 if __name__ == "__main__":
     socketio.run(app, host="0.0.0.0", port=8080)
