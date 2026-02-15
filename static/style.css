@@ -1,38 +1,32 @@
-body {
-    margin: 0;
-    background: linear-gradient(45deg,#1a0033,#000);
-    color: white;
-    text-align: center;
-    font-family: Arial;
+body{
+    background: linear-gradient(to bottom,#1a0033,#000);
+    color:white;
+    text-align:center;
+    font-family:Arial;
 }
 
-h1 {
-    color: #ff00ff;
-    text-shadow: 0 0 20px #ff00ff;
+#board{
+    display:grid;
+    grid-template-columns:repeat(3,100px);
+    gap:15px;
+    justify-content:center;
+    margin-top:30px;
 }
 
-#board {
-    display: grid;
-    grid-template-columns: repeat(3,100px);
-    gap: 15px;
-    justify-content: center;
-    margin-top: 30px;
-}
-
-.cell {
+.cell{
     width:100px;
     height:100px;
-    background:#111;
+    background:#000;
     border-radius:20px;
-    font-size:40px;
+    box-shadow:0 0 15px purple;
+    font-size:50px;
     display:flex;
     align-items:center;
     justify-content:center;
     cursor:pointer;
-    box-shadow:0 0 20px #ff00ff;
 }
 
-#musicBtn {
+#musicBtn{
     position:absolute;
     top:10px;
     right:10px;
