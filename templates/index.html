@@ -4,6 +4,7 @@
     <title>🔥 Power Arena 🔥</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 
@@ -11,9 +12,11 @@
 
 <button id="musicToggle">🔊</button>
 
-<h1>🔥 Tic Tac Toe Arena 🔥</h1>
+<div id="onlineCount">🟢 Online: 0</div>
 
-<div id="status">Your Turn</div>
+<h1>🔥 Power Arena 🔥</h1>
+
+<div id="status">Connecting...</div>
 
 <div id="board" class="board"></div>
 
