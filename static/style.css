@@ -1,39 +1,47 @@
 body{
-margin:0;
-background:#0f001a;
-font-family:Arial;
-text-align:center;
-color:white;
+    margin:0;
+    background:linear-gradient(-45deg,#1a0033,#000,#2a0044,#12001f);
+    background-size:400% 400%;
+    animation:bg 10s infinite;
+    text-align:center;
+    color:white;
+    font-family:Arial;
 }
 
-#musicToggle{
-position:absolute;
-top:10px;
-right:10px;
-padding:8px 12px;
-cursor:pointer;
+@keyframes bg{
+    0%{background-position:0% 50%;}
+    50%{background-position:100% 50%;}
+    100%{background-position:0% 50%;}
 }
 
-.board{
-display:grid;
-grid-template-columns:repeat(3,100px);
-gap:10px;
-justify-content:center;
-margin-top:20px;
+h1{
+    color:#ff00ff;
+    text-shadow:0 0 20px #ff00ff;
+}
+
+#board{
+    display:grid;
+    grid-template-columns:repeat(3,100px);
+    gap:15px;
+    justify-content:center;
+    margin-top:20px;
 }
 
 .cell{
-width:100px;
-height:100px;
-background:#111;
-border-radius:15px;
-font-size:40px;
-display:flex;
-align-items:center;
-justify-content:center;
-cursor:pointer;
-box-shadow:0 0 10px #c300ff;
+    width:100px;
+    height:100px;
+    background:black;
+    border-radius:20px;
+    box-shadow:0 0 25px purple;
+    font-size:40px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
 }
 
-.X{ color:#00f7ff; }
-.O{ color:#ff00c8; }
+#volumeBtn{
+    position:absolute;
+    top:15px;
+    right:15px;
+}
