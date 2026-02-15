@@ -1,25 +1,36 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Power Arena</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>🔥 Power Arena 🔥</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="/static/style.css">
+
+    <!-- Socket.IO -->
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
 </head>
+
 <body>
 
-<div class="top-bar">
-    <div id="onlineCount">🟢 Online: 0</div>
-    <button id="musicToggle">🔊</button>
+<!-- 🔊 Music Toggle Button -->
+<button id="musicToggle">🔊</button>
+
+<!-- 🟢 Online Counter -->
+<div id="onlineCount" class="online">🟢 Online: 0</div>
+
+<!-- 🔥 Title -->
+<h1 class="title">🔥 Power Arena 🔥</h1>
+
+<!-- ⏳ Status -->
+<div id="status" class="status">
+    ⏳ Connecting...
 </div>
 
-<h2>🔥 Power Arena 🔥</h2>
+<!-- 🎮 Game Board -->
+<div id="board" class="board"></div>
 
-<div id="status">Connecting...</div>
-
-<div class="board" id="board"></div>
-
-<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
-<script src="{{ url_for('static', filename='game.js') }}"></script>
+<!-- JS -->
+<script src="/static/game.js"></script>
 
 </body>
 </html>
