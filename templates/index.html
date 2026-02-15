@@ -1,23 +1,21 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Power Arena</title>
-    <link rel="stylesheet" href="/static/style.css">
-    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<title>Power Arena</title>
+<link rel="stylesheet" href="/static/style.css">
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 </head>
 <body>
 
-<div id="onlineCount">Online: 0</div>
+<div id="onlineCount">🟢 Online: 0</div>
+<button id="musicBtn">🔊</button>
 
 <h1>🔥 Power Arena 🔥</h1>
-<div id="status">Connecting...</div>
+<h3 id="status">Connecting...</h3>
 
 <div id="board"></div>
 
-<button id="musicBtn">🔊</button>
-
 <audio id="bgMusic" src="/static/bg.mp3" loop></audio>
-<audio id="moveSound" src="/static/move.mp3"></audio>
 
 <script src="/static/game.js"></script>
 </body>
