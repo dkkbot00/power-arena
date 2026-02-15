@@ -1,2 +1,25 @@
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Power Arena</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="top-bar">
+    <div id="onlineCount">🟢 Online: 0</div>
+    <button id="musicToggle">🔊</button>
+</div>
+
+<h2>🔥 Power Arena 🔥</h2>
+
+<div id="status">Connecting...</div>
+
+<div class="board" id="board"></div>
+
+<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
 <script src="{{ url_for('static', filename='game.js') }}"></script>
+
+</body>
+</html>
