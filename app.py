@@ -1,10 +1,13 @@
-from flask import Flask, render_template
-from flask_socketio import SocketIO, emit, join_room
+import os
 import random
 import time
-import os
+from threading import Timer
+from flask import Flask, render_template
+from flask_socketio import SocketIO, emit, join_room
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'power-arena-secret'
+
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 waiting_player = None
@@ -12,25 +15,28 @@ rooms = {}
 online_users = 0
 
 
+# ================== ROUTE ==================
 @app.route("/")
 def home():
     return render_template("index.html")
 
 
+# ================== ONLINE COUNT ==================
 @socketio.on("connect")
-def connect():
+def handle_connect():
     global online_users
     online_users += 1
     emit("online_count", online_users, broadcast=True)
 
 
 @socketio.on("disconnect")
-def disconnect():
+def handle_disconnect():
     global online_users
     online_users -= 1
     emit("online_count", online_users, broadcast=True)
 
 
+# ================== JOIN GAME ==================
 @socketio.on("join_game")
 def join_game():
     global waiting_player
@@ -39,59 +45,101 @@ def join_game():
         waiting_player = request.sid
         emit("waiting")
 
-        socketio.start_background_task(wait_for_player, request.sid)
+        # 2 sec timer for AI fallback
+        def start_ai():
+            global waiting_player
+            if waiting_player == request.sid:
+                room = request.sid
+                join_room(room)
+                rooms[room] = {
+                    "board": [""] * 9,
+                    "turn": "X",
+                    "ai": True
+                }
+                emit("game_start", {
+                    "room": room,
+                    "symbol": "X",
+                    "ai": True
+                })
+                waiting_player = None
+
+        Timer(2.0, start_ai).start()
+
     else:
-        room = str(random.randint(1000, 9999))
+        player1 = waiting_player
+        player2 = request.sid
+        room = player1 + player2
+
         join_room(room)
-        emit("game_start", {"room": room, "symbol": "X", "ai": False})
+        socketio.emit("game_start", {
+            "room": room,
+            "symbol": "X",
+            "ai": False
+        }, room=player1)
+
+        socketio.emit("game_start", {
+            "room": room,
+            "symbol": "O",
+            "ai": False
+        }, room=player2)
+
+        rooms[room] = {
+            "board": [""] * 9,
+            "turn": "X",
+            "ai": False
+        }
+
         waiting_player = None
 
 
-def wait_for_player(player_id):
-    time.sleep(2)
-    if waiting_player == player_id:
-        room = str(random.randint(1000, 9999))
-        rooms[room] = ["","","","","","","","",""]
-        socketio.emit("game_start",
-                      {"room": room, "symbol": "X", "ai": True},
-                      to=player_id)
-
-
+# ================== MOVE ==================
 @socketio.on("make_move")
 def make_move(data):
     room = data["room"]
     index = data["index"]
     symbol = data["symbol"]
 
-    if room not in rooms:
-        rooms[room] = ["","","","","","","","",""]
-
-    board = rooms[room]
-
-    if board[index] == "":
-        board[index] = symbol
-        emit("update_board", {"board": board, "turn": "O" if symbol=="X" else "X"}, room=room)
-
-        if data.get("ai"):
-            socketio.start_background_task(ai_move, room)
-
-
-def ai_move(room):
-    time.sleep(1.5)
-    board = rooms[room]
-
-    empty = [i for i,v in enumerate(board) if v==""]
-    if not empty:
+    game = rooms.get(room)
+    if not game:
         return
 
-    move = random.choice(empty)
-    board[move] = "O"
+    if game["board"][index] != "":
+        return
 
-    socketio.emit("update_board",
-                  {"board": board, "turn": "X"},
-                  room=room)
+    if game["turn"] != symbol:
+        return
+
+    game["board"][index] = symbol
+    game["turn"] = "O" if symbol == "X" else "X"
+
+    socketio.emit("update_board", {
+        "board": game["board"],
+        "turn": game["turn"]
+    }, room=room)
+
+    # AI Move after 1.5 sec
+    if game["ai"] and game["turn"] == "O":
+        def ai_move():
+            empty = [i for i, v in enumerate(game["board"]) if v == ""]
+            if not empty:
+                return
+            move = random.choice(empty)
+            game["board"][move] = "O"
+            game["turn"] = "X"
+
+            socketio.emit("update_board", {
+                "board": game["board"],
+                "turn": "X"
+            }, room=room)
+
+        Timer(1.5, ai_move).start()
 
 
+# ================== RUN ==================
 if __name__ == "__main__":
-    socketio.run(app, host="0.0.0.0",
-                 port=int(os.environ.get("PORT", 5000)))
+    socketio.run(
+        app,
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", 5000)),
+        allow_unsafe_werkzeug=True
+    )
