@@ -1,35 +1,25 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>🔥 Power Arena 🔥</title>
+    <title>Power Arena</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- CSS -->
-    <link rel="stylesheet" href="/static/style.css">
-
-    <!-- Socket.IO -->
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 
 <body>
 
-<!-- 🔊 Music Toggle Button -->
 <button id="musicToggle">🔊</button>
 
-<!-- 🟢 Online Counter -->
-<div id="onlineCount" class="online">🟢 Online: 0</div>
+<div id="onlineCount">🟢 Online: 0</div>
 
-<!-- 🔥 Title -->
-<h1 class="title">🔥 Power Arena 🔥</h1>
+<h1>🔥 Tic Tac Toe Arena 🔥</h1>
 
-<!-- ⏳ Status -->
-<div id="status" class="status">
-    ⏳ Connecting...
-</div>
+<div id="status">Connecting...</div>
 
-<!-- 🎮 Game Board -->
 <div id="board" class="board"></div>
 
-<!-- JS -->
 <script src="/static/game.js"></script>
 
 </body>
