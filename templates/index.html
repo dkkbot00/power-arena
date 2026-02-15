@@ -2,20 +2,23 @@
 <html>
 <head>
     <title>Power Arena</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 </head>
 <body>
 
-<div id="onlineCount">🟢 Online: 0</div>
-
-<button id="volumeBtn">🔊</button>
+<div id="onlineCount">Online: 0</div>
 
 <h1>🔥 Power Arena 🔥</h1>
 <div id="status">Connecting...</div>
 
 <div id="board"></div>
 
-<script src="/socket.io/socket.io.js"></script>
-<script src="{{ url_for('static', filename='game.js') }}"></script>
+<button id="musicBtn">🔊</button>
+
+<audio id="bgMusic" src="/static/bg.mp3" loop></audio>
+<audio id="moveSound" src="/static/move.mp3"></audio>
+
+<script src="/static/game.js"></script>
 </body>
 </html>
