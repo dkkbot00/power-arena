@@ -1,11 +1,16 @@
-let board = ["","","","","","","","",""];
-let currentPlayer = "X";
+const socket = io();
+
+let room = null;
+let symbol = null;
+let board = [];
+let turn = null;
 let gameActive = true;
 
 const boardDiv = document.getElementById("board");
 const statusDiv = document.getElementById("status");
+const onlineDiv = document.getElementById("onlineCount");
 
-/* SOUND SYSTEM */
+/* SOUND */
 
 const bgMusic = new Audio("/static/bg.mp3");
 bgMusic.loop = true;
@@ -20,7 +25,38 @@ const clickSound = new Audio("/static/click.mp3");
 let musicOn = true;
 let musicStarted = false;
 
-/* DRAW BOARD */
+/* SOCKET */
+
+socket.on("connect", () => {
+    socket.emit("join_game");
+});
+
+socket.on("online_count", (count) => {
+    onlineDiv.innerText = "🟢 Online: " + count;
+});
+
+socket.on("waiting", () => {
+    statusDiv.innerText = "⏳ Waiting 5 sec...";
+});
+
+socket.on("game_start", (data) => {
+    room = data.room;
+    symbol = data.symbol;
+    board = ["","","","","","","","",""];
+    turn = "X";
+    gameActive = true;
+    statusDiv.innerText = data.ai ? "🤖 AI Mode" : "🎮 Multiplayer";
+    drawBoard();
+});
+
+socket.on("update_board", (data) => {
+    board = data.board;
+    turn = data.turn;
+    drawBoard();
+    checkWinner();
+});
+
+/* DRAW */
 
 function drawBoard(){
     boardDiv.innerHTML = "";
@@ -34,11 +70,12 @@ function drawBoard(){
     });
 }
 
-/* PLAYER MOVE */
+/* MOVE */
 
 function makeMove(i){
-    if(!gameActive) return;
+    if(!room || !gameActive) return;
     if(board[i] !== "") return;
+    if(turn !== symbol) return;
 
     if(!musicStarted){
         bgMusic.play();
@@ -47,78 +84,53 @@ function makeMove(i){
 
     clickSound.play();
 
-    board[i] = "X";
-    xSound.play();
-    drawBoard();
+    socket.emit("make_move", {
+        room: room,
+        index: i,
+        symbol: symbol
+    });
 
-    if(checkWinner("X")){
-        statusDiv.innerText = "🥳 You Win!";
-        winSound.play();
-        gameActive = false;
-        return;
-    }
-
-    if(board.includes("")){
-        statusDiv.innerText = "AI Thinking...";
-        setTimeout(aiMove,1500);
-    }
+    if(symbol === "X") xSound.play();
+    else oSound.play();
 }
 
-/* HARD AI */
+/* WIN */
 
-function aiMove(){
-    if(!gameActive) return;
-
-    let move = bestMove("O");
-    if(move === null) move = bestMove("X");
-    if(move === null){
-        let empty = board.map((v,i)=>v===""?i:null).filter(v=>v!==null);
-        move = empty[Math.floor(Math.random()*empty.length)];
-    }
-
-    board[move] = "O";
-    oSound.play();
-    drawBoard();
-
-    if(checkWinner("O")){
-        statusDiv.innerText = "😈 AI Wins!";
-        loseSound.play();
-        gameActive = false;
-        return;
-    }
-
-    statusDiv.innerText = "Your Turn";
-}
-
-function bestMove(player){
+function checkWinner(){
     const wins = [
         [0,1,2],[3,4,5],[6,7,8],
         [0,3,6],[1,4,7],[2,5,8],
         [0,4,8],[2,4,6]
     ];
 
-    for(let combo of wins){
-        const [a,b,c] = combo;
-        const values = [board[a], board[b], board[c]];
-        if(values.filter(v=>v===player).length===2 && values.includes("")){
-            return combo[values.indexOf("")];
+    for(let [a,b,c] of wins){
+        if(board[a] && board[a] === board[b] && board[a] === board[c]){
+            gameActive = false;
+
+            if(board[a] === symbol){
+                statusDiv.innerText = "🥳 You Win!";
+                winSound.play();
+            } else {
+                statusDiv.innerText = "😈 You Lose!";
+                loseSound.play();
+            }
+
+            setTimeout(restartGame, 2500);
+            return;
         }
     }
-    return null;
+
+    if(!board.includes("")){
+        statusDiv.innerText = "Draw!";
+        setTimeout(restartGame, 2000);
+    }
 }
 
-/* WIN CHECK */
-
-function checkWinner(player){
-    const wins = [
-        [0,1,2],[3,4,5],[6,7,8],
-        [0,3,6],[1,4,7],[2,5,8],
-        [0,4,8],[2,4,6]
-    ];
-
-    return wins.some(([a,b,c]) =>
-        board[a]===player && board[b]===player && board[c]===player
-    );
+function restartGame(){
+    board = ["","","","","","","","",""];
+    gameActive = true;
+    statusDiv.innerText = "New Round!";
+    drawBoard();
 }
 
 /* MUSIC TOGGLE */
@@ -134,5 +146,3 @@ document.getElementById("musicToggle").onclick = function(){
         musicOn=true;
     }
 };
-
-drawBoard();
