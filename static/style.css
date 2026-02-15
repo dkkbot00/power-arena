@@ -1,28 +1,17 @@
 body{
 margin:0;
-background:linear-gradient(-45deg,#140021,#2b0050,#1a0033,#000);
-background-size:400% 400%;
-animation:bg 10s ease infinite;
+background:#0f001a;
 font-family:Arial;
 text-align:center;
 color:white;
 }
 
-@keyframes bg{
-0%{background-position:0% 50%}
-50%{background-position:100% 50%}
-100%{background-position:0% 50%}
-}
-
-h2{
-color:#c300ff;
-text-shadow:0 0 20px #c300ff;
-}
-
-.top-bar{
-display:flex;
-justify-content:space-between;
-padding:10px 20px;
+#musicToggle{
+position:absolute;
+top:10px;
+right:10px;
+padding:8px 12px;
+cursor:pointer;
 }
 
 .board{
@@ -43,15 +32,13 @@ display:flex;
 align-items:center;
 justify-content:center;
 cursor:pointer;
-box-shadow:0 0 15px #c300ff;
+box-shadow:0 0 10px #c300ff;
 }
 
 .X{
 color:#00f7ff;
-text-shadow:0 0 15px #00f7ff;
 }
 
 .O{
 color:#ff00c8;
-text-shadow:0 0 15px #ff00c8;
 }
